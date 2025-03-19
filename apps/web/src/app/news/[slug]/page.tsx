@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 
 import { PageBuilder } from "@/components/pagebuilder";
 import { SanityImage } from "@/components/sanity-image";
@@ -17,7 +18,7 @@ export async function generateMetadata({
   params,
 }: {
   params: { slug: string };
-}) {
+}): Promise<Metadata> {
   const { data: newsArticle } = await fetchNewsArticle(params.slug);
 
   if (!newsArticle) {
@@ -30,14 +31,16 @@ export async function generateMetadata({
   });
 }
 
-type Props = {
+interface PageProps {
   params: {
     slug: string;
   };
   searchParams: { [key: string]: string | string[] | undefined };
-};
+}
 
-export default async function NewsArticlePage({ params }: Props) {
+export default async function NewsArticlePage({
+  params,
+}: PageProps) {
   const { data: newsArticle } = await fetchNewsArticle(params.slug);
 
   if (!newsArticle) {
