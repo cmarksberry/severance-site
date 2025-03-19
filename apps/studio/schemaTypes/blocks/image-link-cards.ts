@@ -1,173 +1,94 @@
-import { ImageIcon, ImagesIcon, UserIcon } from "lucide-react";
+import { ImageIcon } from "lucide-react";
 import { defineField, defineType } from "sanity";
 
-import { buttonsField, richTextField } from "../common";
-
-interface ImageLinkCardParent {
-  type?: "custom" | "employee";
-}
-
-const imageLinkCard = defineField({
-  name: "imageLinkCard",
-  type: "object",
-  icon: ImageIcon,
-  fields: [
-    defineField({
-      name: "type",
-      type: "string",
-      title: "Card Type",
-      options: {
-        list: [
-          { title: "Custom Card", value: "custom" },
-          { title: "Employee Card", value: "employee" },
-        ],
-      },
-      initialValue: "custom",
-    }),
-    defineField({
-      name: "employee",
-      type: "reference",
-      to: [{ type: "author" }],
-      title: "Lumon Employee",
-      description: "Select a Lumon employee to feature",
-      hidden: ({ parent }: { parent: ImageLinkCardParent }) => parent?.type !== "employee",
-      validation: (Rule) => Rule.required().custom((value, context) => {
-        const parent = context.parent as ImageLinkCardParent;
-        if (parent?.type === "employee" && !value) {
-          return "Employee is required for employee cards";
-        }
-        return true;
-      }),
-    }),
-    defineField({
-      name: "title",
-      title: "Card Title",
-      type: "string",
-      validation: (Rule) => Rule.required().custom((value, context) => {
-        const parent = context.parent as ImageLinkCardParent;
-        if (parent?.type === "custom" && !value) {
-          return "Title is required for custom cards";
-        }
-        return true;
-      }),
-      hidden: ({ parent }: { parent: ImageLinkCardParent }) => parent?.type === "employee",
-    }),
-    defineField({
-      name: "description",
-      title: "Card Description",
-      type: "text",
-      validation: (Rule) => Rule.required().custom((value, context) => {
-        const parent = context.parent as ImageLinkCardParent;
-        if (parent?.type === "custom" && !value) {
-          return "Description is required for custom cards";
-        }
-        return true;
-      }),
-      hidden: ({ parent }: { parent: ImageLinkCardParent }) => parent?.type === "employee",
-    }),
-    defineField({
-      name: "image",
-      title: "Card Image",
-      type: "image",
-      description: "Add an image or illustration for this card",
-      hidden: ({ parent }: { parent: ImageLinkCardParent }) => parent?.type === "employee",
-    }),
-    defineField({
-      name: "url",
-      title: "Link URL",
-      type: "customUrl",
-      hidden: ({ parent }: { parent: ImageLinkCardParent }) => parent?.type === "employee",
-    }),
-  ],
-  preview: {
-    select: {
-      type: "type",
-      title: "title",
-      description: "description",
-      media: "image",
-      employeeName: "employee.name",
-      employeeImage: "employee.image",
-      externalUrl: "url.external",
-      urlType: "url.type",
-      internalUrl: "url.internal.slug.current",
-      openInNewTab: "url.openInNewTab",
-    },
-    prepare: ({
-      type,
-      title,
-      description,
-      media,
-      employeeName,
-      employeeImage,
-      externalUrl,
-      urlType,
-      internalUrl,
-      openInNewTab,
-    }) => {
-      if (type === "employee") {
-        return {
-          title: employeeName || "Unnamed Employee",
-          subtitle: "Employee Card",
-          media: employeeImage,
-        };
-      }
-
-      const url = urlType === "external" ? externalUrl : internalUrl;
-      const newTabIndicator = openInNewTab ? " ↗" : "";
-      const truncatedUrl =
-        url?.length > 30 ? `${url.substring(0, 30)}...` : url;
-      const truncatedDesc =
-        description?.length > 50
-          ? `${description.substring(0, 50)}...`
-          : description;
-
-      return {
-        title: title || "Untitled Card",
-        subtitle:
-          truncatedDesc + (url ? ` • ${truncatedUrl}${newTabIndicator}` : ""),
-        media,
-      };
-    },
-  },
-});
+import { GROUP, GROUPS } from "../../utils/constant";
+import { ogFields } from "../../utils/og-fields";
+import { seoFields } from "../../utils/seo-fields";
+import { createSlug, isUnique } from "../../utils/slug";
+import { pageBuilderField } from "../common";
 
 export const imageLinkCards = defineType({
   name: "imageLinkCards",
-  type: "object",
-  icon: ImagesIcon,
   title: "Image Link Cards",
+  type: "object",
+  icon: ImageIcon,
+  description:
+    "A grid of cards with images and links. Each card can have its own image, title, description, and link.",
+  groups: GROUPS,
   fields: [
     defineField({
-      name: "eyebrow",
-      title: "Eyebrow Text",
+      name: "title",
       type: "string",
-      description: "Optional text displayed above the title",
+      title: "Title",
+      description: "The main heading for this section",
+      group: GROUP.MAIN_CONTENT,
+      validation: (Rule) => Rule.required().error("A title is required"),
     }),
     defineField({
-      name: "title",
-      title: "Section Title",
-      type: "string",
-      description: "The main heading for this cards section",
-      validation: (Rule) => Rule.required(),
+      name: "description",
+      type: "text",
+      title: "Description",
+      description: "A brief description of this section",
+      rows: 3,
+      group: GROUP.MAIN_CONTENT,
     }),
-    richTextField,
-    buttonsField,
     defineField({
       name: "cards",
-      title: "Cards",
       type: "array",
-      of: [imageLinkCard],
+      title: "Cards",
+      description: "The cards to display in this section",
+      group: GROUP.MAIN_CONTENT,
+      of: [
+        {
+          type: "object",
+          fields: [
+            defineField({
+              name: "image",
+              type: "image",
+              title: "Image",
+              description: "The image to display on this card",
+              options: {
+                hotspot: true,
+              },
+            }),
+            defineField({
+              name: "title",
+              type: "string",
+              title: "Title",
+              description: "The title of this card",
+              validation: (Rule) => Rule.required().error("A title is required"),
+            }),
+            defineField({
+              name: "description",
+              type: "text",
+              title: "Description",
+              description: "A brief description of this card",
+              rows: 2,
+            }),
+            defineField({
+              name: "link",
+              type: "url",
+              title: "Link",
+              description: "The URL this card should link to",
+              validation: (Rule) => Rule.required().error("A link is required"),
+            }),
+          ],
+        },
+      ],
     }),
+    ...seoFields,
+    ...ogFields,
   ],
   preview: {
     select: {
       title: "title",
-      eyebrow: "eyebrow",
       cards: "cards",
     },
-    prepare: ({ title, eyebrow, cards = [] }) => ({
-      title: title || "Image Link Cards",
-      subtitle: `${eyebrow ? `${eyebrow} • ` : ""}${cards.length} card${cards.length === 1 ? "" : "s"}`,
-    }),
+    prepare: ({ title, cards }) => {
+      return {
+        title: title || "Image Link Cards",
+        subtitle: `Cards: ${cards?.length || 0}`,
+      };
+    },
   },
 });
