@@ -112,4 +112,4 @@ You have the freedom to deploy your Next.js app to your hosting provider of choi
 
 Now that you’ve deployed your Next.js application and Sanity Studio, you can optionally invite a collaborator to your Studio. Open up [Manage](https://www.sanity.io/manage), select your project and click "Invite project members"
 
-They will be able to access the deployed Studio, where you can collaborate together on creating content.
+They will be able to access the deployed Studio, where you can collaborate together on creating content..
