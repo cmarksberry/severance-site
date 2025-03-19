@@ -32,19 +32,53 @@ interface BlogIndexData {
   blogs: Blog[];
 }
 
+function isBlogIndexData(data: unknown): data is BlogIndexData {
+  if (!data || typeof data !== 'object') return false;
+  const d = data as BlogIndexData;
+  return (
+    typeof d._id === 'string' &&
+    typeof d._type === 'string' &&
+    Array.isArray(d.blogs) &&
+    d.blogs.every(isBlog)
+  );
+}
+
+function isBlog(data: unknown): data is Blog {
+  if (!data || typeof data !== 'object') return false;
+  const b = data as Blog;
+  return (
+    typeof b._id === 'string' &&
+    typeof b._type === 'string' &&
+    (b.title === null || typeof b.title === 'string') &&
+    (b.description === null || typeof b.description === 'string') &&
+    (b.slug === null || typeof b.slug === 'string') &&
+    (b.publishedAt === null || typeof b.publishedAt === 'string') &&
+    (b.authors === null || isBlogAuthor(b.authors))
+  );
+}
+
+function isBlogAuthor(data: unknown): data is Blog['authors'] {
+  if (!data || typeof data !== 'object') return false;
+  const a = data as NonNullable<Blog['authors']>;
+  return (
+    typeof a._id === 'string' &&
+    (a.name === null || typeof a.name === 'string')
+  );
+}
+
 /**
  * Fetches blog posts data from Sanity CMS
  */
 async function fetchBlogPosts() {
-  const data = await sanityFetch({
+  const result = await sanityFetch({
     query: queryBlogIndexPageData,
-  }) as { data: BlogIndexData };
+  });
 
-  if (!data?.data?.blogs?.length) {
+  if (!result?.data || !isBlogIndexData(result.data)) {
     return notFound();
   }
 
-  return data;
+  return result;
 }
 
 export async function generateMetadata() {
