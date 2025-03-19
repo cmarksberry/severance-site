@@ -54,8 +54,7 @@ export const imageLinkCards = defineType({
               type: "string",
               title: "Title",
               description: "The title of this card",
-              validation: (Rule) => 
-                Rule.required().error("A title is required"),
+              validation: (Rule) => Rule.required().error("A title is required"),
             }),
             defineField({
               name: "description",
