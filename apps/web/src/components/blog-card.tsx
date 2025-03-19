@@ -1,12 +1,23 @@
 import Link from "next/link";
 
-import type { QueryBlogIndexPageDataResult } from "@/lib/sanity/sanity.types";
+import type { SanityImageProps } from "@/types";
 
 import { SanityImage } from "./sanity-image";
 
-type Blog = NonNullable<
-  NonNullable<QueryBlogIndexPageDataResult>["blogs"]
->[number];
+type Blog = {
+  _id: string;
+  _type: string;
+  title: string | null;
+  description: string | null;
+  slug: string | null;
+  image: SanityImageProps | null;
+  publishedAt: string | null;
+  authors: {
+    _id: string;
+    name: string | null;
+    image: SanityImageProps | null;
+  } | null;
+};
 
 interface BlogImageProps {
   image: Blog["image"];
@@ -122,6 +133,7 @@ function AuthorSection({ authors }: { authors: Blog["authors"] }) {
     </div>
   );
 }
+
 export function FeaturedBlogCard({ blog }: BlogCardProps) {
   const { title, publishedAt, slug, authors, description, image } = blog ?? {};
 

@@ -5,16 +5,28 @@ import { PageBuilder } from "@/components/pagebuilder";
 import { sanityFetch } from "@/lib/sanity/live";
 import { queryBlogIndexPageData } from "@/lib/sanity/query";
 import type { QueryBlogIndexPageDataResult } from "@/lib/sanity/sanity.types";
+import type { SanityImageProps } from "@/types";
 import { getMetaData } from "@/lib/seo";
 
-type Blog = NonNullable<
-  NonNullable<QueryBlogIndexPageDataResult>["blogs"]
->[number];
+type Blog = {
+  _id: string;
+  _type: string;
+  title: string | null;
+  description: string | null;
+  slug: string | null;
+  image: SanityImageProps | null;
+  publishedAt: string | null;
+  authors: {
+    _id: string;
+    name: string | null;
+    image: SanityImageProps | null;
+  } | null;
+};
 
 /**
  * Fetches blog posts data from Sanity CMS
  */
-async function fetchBlogPosts() {
+async function fetchBlogPosts(): Promise<{ data: QueryBlogIndexPageDataResult }> {
   return await sanityFetch({ query: queryBlogIndexPageData });
 }
 
@@ -61,23 +73,24 @@ export default async function BlogIndexPage() {
         {/* Featured Blog */}
         {featuredBlog && (
           <div className="mx-auto mt-8 sm:mt-12 md:mt-16 mb-12 lg:mb-20">
-            <FeaturedBlogCard blog={featuredBlog} />
+            <FeaturedBlogCard blog={featuredBlog as Blog} />
           </div>
         )}
 
         {/* Blog Grid */}
         {remainingBlogs.length > 0 && (
           <div className="grid grid-cols-1 gap-8 md:gap-12 lg:grid-cols-2">
-            {remainingBlogs.map((blog: Blog) => (
-              <BlogCard key={blog._id} blog={blog} />
+            {remainingBlogs.map((blog) => (
+              <BlogCard key={blog._id} blog={blog as Blog} />
             ))}
           </div>
         )}
-      </div>
 
-      {pageBuilder && pageBuilder.length > 0 && (
-        <PageBuilder pageBuilder={pageBuilder} id={_id} type={_type} />
-      )}
+        {/* Page Builder */}
+        {pageBuilder && pageBuilder.length > 0 && (
+          <PageBuilder pageBuilder={pageBuilder} id={_id} type={_type} />
+        )}
+      </div>
     </main>
   );
 }
