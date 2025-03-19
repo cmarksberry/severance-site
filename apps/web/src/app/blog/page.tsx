@@ -4,7 +4,12 @@ import { BlogCard, BlogHeader, FeaturedBlogCard } from "@/components/blog-card";
 import { PageBuilder } from "@/components/pagebuilder";
 import { sanityFetch } from "@/lib/sanity/live";
 import { queryBlogIndexPageData } from "@/lib/sanity/query";
+import type { QueryBlogIndexPageDataResult } from "@/lib/sanity/sanity.types";
 import { getMetaData } from "@/lib/seo";
+
+type Blog = NonNullable<
+  NonNullable<QueryBlogIndexPageDataResult>["blogs"]
+>[number];
 
 /**
  * Fetches blog posts data from Sanity CMS
@@ -63,7 +68,7 @@ export default async function BlogIndexPage() {
         {/* Blog Grid */}
         {remainingBlogs.length > 0 && (
           <div className="grid grid-cols-1 gap-8 md:gap-12 lg:grid-cols-2">
-            {remainingBlogs.map((blog) => (
+            {remainingBlogs.map((blog: Blog) => (
               <BlogCard key={blog._id} blog={blog} />
             ))}
           </div>
