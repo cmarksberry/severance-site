@@ -1,6 +1,8 @@
+import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import type { Metadata } from "next";
-
+import { client } from "@/lib/sanity/client";
+import { urlFor } from "@/lib/sanity/client";
+import { PortableText } from "@portabletext/react";
 import { PageBuilder } from "@/components/pagebuilder";
 import { SanityImage } from "@/components/sanity-image";
 import { sanityFetch } from "@/lib/sanity/live";
@@ -31,16 +33,14 @@ export async function generateMetadata({
   });
 }
 
-type PageProps = {
+type Props = {
   params: {
     slug: string;
   };
-  searchParams?: { [key: string]: string | string[] | undefined };
+  searchParams: { [key: string]: string | string[] | undefined };
 };
 
-export default async function NewsArticlePage({
-  params,
-}: PageProps) {
+export default async function NewsArticlePage({ params }: Props) {
   const { data: newsArticle } = await fetchNewsArticle(params.slug);
 
   if (!newsArticle) {
