@@ -5,9 +5,9 @@ import { sanityFetch } from "@/lib/sanity/live";
 import { queryNewsSlugPageData } from "@/lib/sanity/query";
 
 interface Props {
-  params: Promise<{
+  params: {
     slug: string;
-  }>;
+  };
   searchParams: { [key: string]: string | string[] | undefined };
 }
 
@@ -46,10 +46,9 @@ interface NewsArticle {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
   const { data: article } = await sanityFetch({
     query: queryNewsSlugPageData,
-    params: { slug },
+    params: { slug: params.slug },
   });
 
   if (!article) {
@@ -71,10 +70,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function NewsArticlePage({ params }: Props) {
-  const { slug } = await params;
   const { data: article } = await sanityFetch({
     query: queryNewsSlugPageData,
-    params: { slug },
+    params: { slug: params.slug },
   });
 
   if (!article) {
