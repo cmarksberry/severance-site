@@ -30,18 +30,31 @@ export async function generateMetadata({
   });
 }
 
-export default async function NewsArticlePage({
-  params,
-}: {
-  params: { slug: string };
-}) {
+type Props = {
+  params: {
+    slug: string;
+  };
+  searchParams: { [key: string]: string | string[] | undefined };
+};
+
+export default async function NewsArticlePage({ params }: Props) {
   const { data: newsArticle } = await fetchNewsArticle(params.slug);
 
   if (!newsArticle) {
     return notFound();
   }
 
-  const { title, description, image, department, priority, publishedAt, pageBuilder, _id, _type } = newsArticle;
+  const {
+    title,
+    description,
+    image,
+    department,
+    priority,
+    publishedAt,
+    pageBuilder,
+    _id,
+    _type,
+  } = newsArticle;
 
   return (
     <article className="flex flex-col gap-8">
