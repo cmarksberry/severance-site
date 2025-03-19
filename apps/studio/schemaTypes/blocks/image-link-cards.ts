@@ -3,6 +3,10 @@ import { defineField, defineType } from "sanity";
 
 import { buttonsField, richTextField } from "../common";
 
+interface ImageLinkCardParent {
+  type?: "custom" | "employee";
+}
+
 const imageLinkCard = defineField({
   name: "imageLinkCard",
   type: "object",
@@ -26,35 +30,53 @@ const imageLinkCard = defineField({
       to: [{ type: "author" }],
       title: "Lumon Employee",
       description: "Select a Lumon employee to feature",
-      hidden: ({ parent }) => parent?.type !== "employee",
-      validation: (Rule) => Rule.required().when("type", "employee"),
+      hidden: ({ parent }: { parent: ImageLinkCardParent }) => parent?.type !== "employee",
+      validation: (Rule) => Rule.required().custom((value, context) => {
+        const parent = context.parent as ImageLinkCardParent;
+        if (parent?.type === "employee" && !value) {
+          return "Employee is required for employee cards";
+        }
+        return true;
+      }),
     }),
     defineField({
       name: "title",
       title: "Card Title",
       type: "string",
-      validation: (Rule) => Rule.required().when("type", "custom"),
-      hidden: ({ parent }) => parent?.type === "employee",
+      validation: (Rule) => Rule.required().custom((value, context) => {
+        const parent = context.parent as ImageLinkCardParent;
+        if (parent?.type === "custom" && !value) {
+          return "Title is required for custom cards";
+        }
+        return true;
+      }),
+      hidden: ({ parent }: { parent: ImageLinkCardParent }) => parent?.type === "employee",
     }),
     defineField({
       name: "description",
       title: "Card Description",
       type: "text",
-      validation: (Rule) => Rule.required().when("type", "custom"),
-      hidden: ({ parent }) => parent?.type === "employee",
+      validation: (Rule) => Rule.required().custom((value, context) => {
+        const parent = context.parent as ImageLinkCardParent;
+        if (parent?.type === "custom" && !value) {
+          return "Description is required for custom cards";
+        }
+        return true;
+      }),
+      hidden: ({ parent }: { parent: ImageLinkCardParent }) => parent?.type === "employee",
     }),
     defineField({
       name: "image",
       title: "Card Image",
       type: "image",
       description: "Add an image or illustration for this card",
-      hidden: ({ parent }) => parent?.type === "employee",
+      hidden: ({ parent }: { parent: ImageLinkCardParent }) => parent?.type === "employee",
     }),
     defineField({
       name: "url",
       title: "Link URL",
       type: "customUrl",
-      hidden: ({ parent }) => parent?.type === "employee",
+      hidden: ({ parent }: { parent: ImageLinkCardParent }) => parent?.type === "employee",
     }),
   ],
   preview: {

@@ -1,129 +1,118 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { client } from "@/lib/sanity/client";
-import { urlFor } from "@/lib/sanity/client";
-import { PortableText } from "@portabletext/react";
-import { PageBuilder } from "@/components/pagebuilder";
-import { SanityImage } from "@/components/sanity-image";
+
 import { sanityFetch } from "@/lib/sanity/live";
 import { queryNewsSlugPageData } from "@/lib/sanity/query";
-import { getMetaData } from "@/lib/seo";
 
-async function fetchNewsArticle(slug: string) {
-  return await sanityFetch({
-    query: queryNewsSlugPageData,
-    params: { slug: `/news/${slug}` },
-  });
-}
-
-export async function generateMetadata({
-  params,
-}: {
-  params: { slug: string };
-}): Promise<Metadata> {
-  const { data: newsArticle } = await fetchNewsArticle(params.slug);
-
-  if (!newsArticle) {
-    return {};
-  }
-
-  return getMetaData({
-    title: newsArticle.seoTitle || newsArticle.title,
-    description: newsArticle.seoDescription || newsArticle.description,
-  });
-}
-
-type PageProps = {
-  params: {
+interface Props {
+  params: Promise<{
     slug: string;
-  };
+  }>;
   searchParams: { [key: string]: string | string[] | undefined };
-};
+}
 
-export default async function NewsArticlePage({
-  params,
-}: PageProps) {
-  const { data: newsArticle } = await fetchNewsArticle(params.slug);
+interface NewsArticle {
+  _id: string;
+  _type: string;
+  title: string;
+  description: string;
+  slug: {
+    current: string;
+  };
+  department: string;
+  priority: string;
+  publishedAt: string;
+  image: {
+    asset: {
+      _ref: string;
+      _type: string;
+    };
+    hotspot?: {
+      x: number;
+      y: number;
+      height: number;
+      width: number;
+    };
+    crop?: {
+      top: number;
+      bottom: number;
+      left: number;
+      right: number;
+    };
+    _type: "image";
+  };
+  pageBuilder?: any[];
+  content: any;
+}
 
-  if (!newsArticle) {
-    return notFound();
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const { data: article } = await sanityFetch({
+    query: queryNewsSlugPageData,
+    params: { slug },
+  });
+
+  if (!article) {
+    return {
+      title: "Article Not Found",
+      description: "The requested article could not be found.",
+    };
   }
 
-  const {
-    title,
-    description,
-    image,
-    department,
-    priority,
-    publishedAt,
-    pageBuilder,
-    _id,
-    _type,
-  } = newsArticle;
+  return {
+    title: article.title,
+    description: article.description,
+    openGraph: {
+      title: article.title,
+      description: article.description,
+      images: article.image ? [{ url: article.image.asset._ref }] : [],
+    },
+  };
+}
+
+export default async function NewsArticlePage({ params }: Props) {
+  const { slug } = await params;
+  const { data: article } = await sanityFetch({
+    query: queryNewsSlugPageData,
+    params: { slug },
+  });
+
+  if (!article) {
+    notFound();
+  }
 
   return (
-    <article className="flex flex-col gap-8">
-      {/* Hero Section */}
-      <section className="relative w-full">
-        <div className="container mx-auto px-4 md:px-8">
-          <div className="flex flex-col gap-4">
-            {/* Department and Priority Badges */}
-            <div className="flex flex-wrap gap-2">
-              <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
-                {department?.toUpperCase()}
-              </span>
-              <span className="inline-flex items-center rounded-md bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-700 ring-1 ring-inset ring-yellow-700/10">
-                {priority}
-              </span>
-            </div>
-
-            {/* Title */}
-            <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-6xl">
-              {title}
-            </h1>
-
-            {/* Description */}
-            {description && (
-              <p className="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-300">
-                {description}
-              </p>
-            )}
-
-            {/* Publication Date */}
-            {publishedAt && (
-              <time
-                dateTime={publishedAt}
-                className="text-sm text-gray-500 dark:text-gray-400"
-              >
-                Published on {new Date(publishedAt).toLocaleDateString()}
-              </time>
-            )}
-          </div>
-        </div>
-
-        {/* Hero Image */}
-        {image && (
-          <div className="mt-8">
-            <SanityImage
-              asset={image}
-              className="w-full h-auto rounded-lg"
-              width={1600}
-              height={900}
-            />
-          </div>
-        )}
-      </section>
-
-      {/* Page Builder Content */}
-      {pageBuilder && pageBuilder.length > 0 ? (
-        <PageBuilder pageBuilder={pageBuilder} id={_id} type={_type} />
-      ) : (
-        <div className="flex flex-col items-center justify-center min-h-[50vh] text-center p-4">
-          <p className="text-muted-foreground mb-6">
-            This news article has no content blocks yet.
-          </p>
-        </div>
+    <article className="mx-auto max-w-3xl px-4 py-8">
+      <div className="flex flex-wrap gap-2 mb-4">
+        <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
+          {article.department.toUpperCase()}
+        </span>
+        <span className="inline-flex items-center rounded-md bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-700 ring-1 ring-inset ring-yellow-700/10">
+          {article.priority}
+        </span>
+      </div>
+      <h1 className="mb-4 text-4xl font-bold">{article.title}</h1>
+      {article.description && (
+        <p className="mb-8 text-xl text-gray-600">{article.description}</p>
       )}
+      {article.publishedAt && (
+        <time
+          dateTime={article.publishedAt}
+          className="text-sm text-gray-500 mb-8 block"
+        >
+          Published on {new Date(article.publishedAt).toLocaleDateString()}
+        </time>
+      )}
+      {article.image && (
+        <img
+          src={article.image.asset._ref}
+          alt={article.title}
+          className="mb-8 w-full rounded-lg"
+        />
+      )}
+      <div className="prose prose-lg max-w-none">
+        {article.content}
+      </div>
     </article>
   );
 } 
