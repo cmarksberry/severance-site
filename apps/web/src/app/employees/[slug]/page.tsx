@@ -4,10 +4,30 @@ import { RichText } from "@/components/richtext";
 import { SanityImage } from "@/components/sanity-image";
 import { client } from "@/lib/sanity/client";
 import { sanityFetch } from "@/lib/sanity/live";
-import { queryEmployeePaths, queryEmployeeSlugPageData } from "@/lib/sanity/query";
+import {
+  queryEmployeePaths,
+  queryEmployeeSlugPageData,
+} from "@/lib/sanity/query";
+import type { RichText as RichTextType } from "@/lib/sanity/sanity.types";
 import { getMetaData } from "@/lib/seo";
+import type { SanityImageProps } from "@/types";
 
-async function fetchEmployeeSlugPageData(slug: string) {
+interface Employee {
+  _id: string;
+  _type: "author";
+  name: string;
+  department?: string;
+  image?: SanityImageProps;
+  bio?: string;
+  status?: string;
+  innieName?: string;
+  notableAchievements?: string[];
+  wellnessVisits?: string[];
+}
+
+async function fetchEmployeeSlugPageData(
+  slug: string,
+): Promise<{ data: Employee }> {
   return await sanityFetch({
     query: queryEmployeeSlugPageData,
     params: { slug },
@@ -15,8 +35,8 @@ async function fetchEmployeeSlugPageData(slug: string) {
 }
 
 async function fetchEmployeePaths() {
-  const slugs = await client.fetch(queryEmployeePaths);
-  return slugs.map((slug: string) => ({ slug }));
+  const slugs = await client.fetch<string[]>(queryEmployeePaths);
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({
@@ -45,124 +65,91 @@ export default async function EmployeeSlugPage({
 
   const {
     name,
-    position,
     department,
-    employeeId,
     image,
     bio,
-    isSevered,
-    innieName,
     status,
+    innieName,
     notableAchievements,
     wellnessVisits,
   } = data;
 
   return (
-    <div className="container my-16 mx-auto px-4 md:px-6">
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_300px]">
-        <main>
-          <header className="mb-8">
-            <div className="flex items-center gap-4">
-              {image && (
-                <div className="h-24 w-24 overflow-hidden rounded-full">
-                  <SanityImage
-                    asset={image}
-                    alt={name}
-                    width={96}
-                    height={96}
-                    className="h-full w-full object-cover"
-                  />
+    <div className="bg-background">
+      <div className="container mx-auto px-4 md:px-6 py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
+          <main className="lg:col-span-2">
+            <div className="flex flex-col md:flex-row gap-8 mb-12">
+              {image?.asset && (
+                <div className="w-full md:w-1/3">
+                  <div className="aspect-square relative overflow-hidden rounded-lg">
+                    <SanityImage
+                      asset={image}
+                      loading="eager"
+                      priority
+                      quality={100}
+                      className="object-cover"
+                    />
+                  </div>
                 </div>
               )}
-              <div>
-                <h1 className="text-4xl font-bold">{name}</h1>
-                <div className="mt-2 flex flex-wrap gap-2 text-sm text-muted-foreground">
-                  <span>{position}</span>
-                  <span>•</span>
-                  <span>{department}</span>
-                  <span>•</span>
-                  <span>ID: {employeeId}</span>
-                  {isSevered && (
-                    <>
-                      <span>•</span>
-                      <span className="text-blue-500">🧠 Severed</span>
-                    </>
-                  )}
-                </div>
+              <div className="flex-1">
+                <h1 className="text-4xl font-bold mb-4">{name}</h1>
+                {department && (
+                  <p className="text-xl text-muted-foreground mb-6">
+                    {department}
+                  </p>
+                )}
               </div>
             </div>
-          </header>
 
-          <div className="prose prose-lg max-w-none">
-            {bio && <RichText richText={bio} />}
-          </div>
+            {bio && (
+              <section className="prose dark:prose-invert max-w-none mb-12">
+                <RichText richText={bio} />
+              </section>
+            )}
 
-          {notableAchievements && notableAchievements.length > 0 && (
-            <section className="mt-12">
-              <h2 className="mb-6 text-2xl font-bold">Notable Achievements</h2>
-              <ul className="list-inside list-disc space-y-2">
-                {notableAchievements.map((achievement: string, index: number) => (
-                  <li key={index}>{achievement}</li>
-                ))}
-              </ul>
-            </section>
-          )}
+            {notableAchievements && notableAchievements.length > 0 && (
+              <section className="mt-12">
+                <h2 className="text-2xl font-semibold mb-4">
+                  Notable Achievements
+                </h2>
+                <ul className="list-disc list-inside space-y-2">
+                  {notableAchievements.map((achievement: string) => (
+                    <li key={achievement}>{achievement}</li>
+                  ))}
+                </ul>
+              </section>
+            )}
 
-          {isSevered && wellnessVisits && wellnessVisits.length > 0 && (
-            <section className="mt-12">
-              <h2 className="mb-6 text-2xl font-bold">Wellness Visits</h2>
-              <div className="space-y-4">
-                {wellnessVisits.map((visit: any, index: number) => (
-                  <div
-                    key={index}
-                    className="rounded-lg border border-border bg-card p-4"
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium">
-                        {new Date(visit.date).toLocaleDateString()}
-                      </span>
-                      <span className="rounded-full bg-blue-100 px-2 py-1 text-xs text-blue-800">
-                        {visit.reason}
-                      </span>
-                    </div>
-                    {visit.notes && (
-                      <p className="mt-2 text-sm text-muted-foreground">
-                        {visit.notes}
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
-        </main>
+            {wellnessVisits && wellnessVisits.length > 0 && (
+              <section className="mt-12">
+                <h2 className="text-2xl font-semibold mb-4">Wellness Visits</h2>
+                <ul className="list-disc list-inside space-y-2">
+                  {wellnessVisits.map((visit: string) => (
+                    <li key={visit}>{visit}</li>
+                  ))}
+                </ul>
+              </section>
+            )}
+          </main>
 
-        <aside className="hidden lg:block">
-          <div className="sticky top-4 space-y-6 rounded-lg border border-border bg-card p-6">
-            <div>
-              <h3 className="font-medium">Status</h3>
-              <p className="mt-1 text-sm text-muted-foreground capitalize">
-                {status}
-              </p>
-            </div>
-            {isSevered && (
-              <div>
-                <h3 className="font-medium">Innie Name</h3>
-                <p className="mt-1 text-sm text-muted-foreground">{innieName}</p>
+          <aside className="space-y-6">
+            {status && (
+              <div className="rounded-lg bg-muted p-4">
+                <h3 className="font-semibold mb-2">Status</h3>
+                <p>{status}</p>
               </div>
             )}
-            <div>
-              <h3 className="font-medium">Department</h3>
-              <p className="mt-1 text-sm text-muted-foreground capitalize">
-                {department}
-              </p>
-            </div>
-            <div>
-              <h3 className="font-medium">Employee ID</h3>
-              <p className="mt-1 text-sm text-muted-foreground">{employeeId}</p>
-            </div>
-          </div>
-        </aside>
+
+            {innieName && (
+              <div className="rounded-lg bg-muted p-4">
+                <h3 className="font-semibold mb-2">Innie Name</h3>
+                <p>{innieName}</p>
+              </div>
+            )}
+          </aside>
+        </div>
       </div>
     </div>
   );
