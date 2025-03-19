@@ -5,11 +5,10 @@ import { SanityImage } from "@/components/sanity-image";
 import { sanityFetch } from "@/lib/sanity/live";
 import { queryNewsSlugPageData } from "@/lib/sanity/query";
 
-interface Props {
-  params: {
-    slug: string;
-  };
-}
+type Props = {
+  params: { slug: string };
+  searchParams: Record<string, string | string[] | undefined>;
+};
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { data: article } = await sanityFetch({
