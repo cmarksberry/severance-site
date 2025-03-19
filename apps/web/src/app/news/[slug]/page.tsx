@@ -8,7 +8,6 @@ interface Props {
   params: {
     slug: string;
   };
-  searchParams: { [key: string]: string | string[] | undefined };
 }
 
 interface NewsArticle {
@@ -42,7 +41,7 @@ interface NewsArticle {
     _type: "image";
   };
   pageBuilder?: any[];
-  content: any;
+  content: any[];
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -64,7 +63,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title: article.title,
       description: article.description,
-      images: article.image ? [{ url: article.image.asset._ref }] : [],
+      images: article.image ? [article.image] : [],
     },
   };
 }
@@ -80,7 +79,7 @@ export default async function NewsArticlePage({ params }: Props) {
   }
 
   return (
-    <article className="mx-auto max-w-3xl px-4 py-8">
+    <article className="container mx-auto px-4 py-8">
       <div className="flex flex-wrap gap-2 mb-4">
         <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
           {article.department.toUpperCase()}
@@ -89,10 +88,8 @@ export default async function NewsArticlePage({ params }: Props) {
           {article.priority}
         </span>
       </div>
-      <h1 className="mb-4 text-4xl font-bold">{article.title}</h1>
-      {article.description && (
-        <p className="mb-8 text-xl text-gray-600">{article.description}</p>
-      )}
+      <h1 className="text-4xl font-bold mb-4">{article.title}</h1>
+      <p className="text-xl text-gray-600 mb-8">{article.description}</p>
       {article.publishedAt && (
         <time
           dateTime={article.publishedAt}
