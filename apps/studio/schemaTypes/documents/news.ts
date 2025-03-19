@@ -138,51 +138,21 @@ export const news = defineType({
   preview: {
     select: {
       title: "title",
+      slug: "slug.current",
       media: "image",
       isPrivate: "seoNoIndex",
-      isHidden: "seoHideFromLists",
-      slug: "slug.current",
-      department: "department",
-      priority: "priority",
-      publishDate: "publishedAt",
       hasPageBuilder: "pageBuilder",
     },
-    prepare: ({
-      title,
-      media,
-      slug,
-      isPrivate,
-      isHidden,
-      department,
-      priority,
-      publishDate,
-      hasPageBuilder,
-    }) => {
-      // Status indicators
-      const visibility = isPrivate
-        ? "🔒 Private"
-        : isHidden
-          ? "🙈 Hidden"
-          : "🌎 Public";
-
-      // Department and priority
-      const deptInfo = department ? `🏢 ${department.toUpperCase()}` : "🏢 All";
-      const priorityInfo = priority ? `⚡ ${priority}` : "⚡ Standard";
-
-      // Date
-      const dateInfo = publishDate
-        ? `📅 ${new Date(publishDate).toLocaleDateString()}`
-        : "⏳ Draft";
-
-      // Page builder status
-      const builderInfo = hasPageBuilder?.length
+    prepare: ({ title, slug, media, isPrivate, hasPageBuilder }) => {
+      const statusEmoji = isPrivate ? "🔒" : "🌎";
+      const builderEmoji = hasPageBuilder?.length
         ? `🧱 ${hasPageBuilder.length}`
         : "🏗️";
 
       return {
-        title: title || "Untitled News",
+        title: `${title || "Untitled Page"}`,
+        subtitle: `${statusEmoji} ${builderEmoji} | 🔗 ${slug || "no-slug"}`,
         media,
-        subtitle: `${visibility} | ${deptInfo} | ${priorityInfo} | ${dateInfo} | ${builderInfo}`,
       };
     },
   },
