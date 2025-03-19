@@ -33,14 +33,16 @@ export async function generateMetadata({
   });
 }
 
-type Props = {
+interface PageProps {
   params: {
     slug: string;
   };
   searchParams: { [key: string]: string | string[] | undefined };
-};
+}
 
-export default async function NewsArticlePage({ params }: Props) {
+export default async function NewsArticlePage({
+  params,
+}: PageProps) {
   const { data: newsArticle } = await fetchNewsArticle(params.slug);
 
   if (!newsArticle) {
