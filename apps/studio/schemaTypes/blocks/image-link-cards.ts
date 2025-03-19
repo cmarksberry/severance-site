@@ -1,4 +1,4 @@
-import { ImageIcon, ImagesIcon } from "lucide-react";
+import { ImageIcon, ImagesIcon, UserIcon } from "lucide-react";
 import { defineField, defineType } from "sanity";
 
 import { buttonsField, richTextField } from "../common";
@@ -9,48 +9,87 @@ const imageLinkCard = defineField({
   icon: ImageIcon,
   fields: [
     defineField({
+      name: "type",
+      type: "string",
+      title: "Card Type",
+      options: {
+        list: [
+          { title: "Custom Card", value: "custom" },
+          { title: "Employee Card", value: "employee" },
+        ],
+      },
+      initialValue: "custom",
+    }),
+    defineField({
+      name: "employee",
+      type: "reference",
+      to: [{ type: "author" }],
+      title: "Lumon Employee",
+      description: "Select a Lumon employee to feature",
+      hidden: ({ parent }) => parent?.type !== "employee",
+      validation: (Rule) => Rule.required().when("type", "employee"),
+    }),
+    defineField({
       name: "title",
       title: "Card Title",
       type: "string",
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) => Rule.required().when("type", "custom"),
+      hidden: ({ parent }) => parent?.type === "employee",
     }),
     defineField({
       name: "description",
       title: "Card Description",
       type: "text",
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) => Rule.required().when("type", "custom"),
+      hidden: ({ parent }) => parent?.type === "employee",
     }),
     defineField({
       name: "image",
       title: "Card Image",
       type: "image",
       description: "Add an image or illustration for this card",
+      hidden: ({ parent }) => parent?.type === "employee",
     }),
     defineField({
       name: "url",
       title: "Link URL",
       type: "customUrl",
+      hidden: ({ parent }) => parent?.type === "employee",
     }),
   ],
   preview: {
     select: {
+      type: "type",
       title: "title",
       description: "description",
       media: "image",
+      employeeName: "employee.name",
+      employeeImage: "employee.image",
       externalUrl: "url.external",
       urlType: "url.type",
       internalUrl: "url.internal.slug.current",
       openInNewTab: "url.openInNewTab",
     },
     prepare: ({
+      type,
       title,
       description,
       media,
+      employeeName,
+      employeeImage,
       externalUrl,
       urlType,
       internalUrl,
       openInNewTab,
     }) => {
+      if (type === "employee") {
+        return {
+          title: employeeName || "Unnamed Employee",
+          subtitle: "Employee Card",
+          media: employeeImage,
+        };
+      }
+
       const url = urlType === "external" ? externalUrl : internalUrl;
       const newTabIndicator = openInNewTab ? " ↗" : "";
       const truncatedUrl =

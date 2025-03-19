@@ -152,6 +152,23 @@ export type ImageLinkCards = {
     } & Button
   >;
   cards?: Array<{
+    type?: "custom" | "employee";
+    employee?: {
+      _type: "reference";
+      _ref: string;
+      name?: string;
+      department?: string;
+      image?: {
+        _type: "image";
+        asset?: {
+          _ref: string;
+          _type: "reference";
+        };
+      };
+      slug?: {
+        current: string;
+      };
+    };
     title?: string;
     description?: string;
     image?: {

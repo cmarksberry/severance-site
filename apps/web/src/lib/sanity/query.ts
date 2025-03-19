@@ -87,6 +87,14 @@ const imageLinkCardsBlock = /* groq */ `
     ${buttonsFragment},
     "cards": array::compact(cards[]{
       ...,
+      type,
+      "employee": employee->{
+        _id,
+        name,
+        department,
+        "slug": slug.current,
+        ${imageFragment}
+      },
       "openInNewTab": url.openInNewTab,
       "href": select(
         url.type == "internal" => url.internal->slug.current,
