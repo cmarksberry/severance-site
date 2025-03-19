@@ -1,12 +1,12 @@
-import { orderableDocumentListDeskItem } from "@sanity/orderable-document-list";
 import {
-  BookMarked,
+  BookOpen,
+  CalendarIcon,
   CogIcon,
   File,
-  FileText,
   HomeIcon,
   type LucideIcon,
   MessageCircleQuestion,
+  NewspaperIcon,
   PanelBottomIcon,
   PanelTopDashedIcon,
   Settings2,
@@ -44,59 +44,12 @@ type CreateList = {
   S: StructureBuilder;
 } & Base;
 
-// This function creates a list item for a type. It takes a StructureBuilder instance (S),
-// a type, an icon, and a title as parameters. It generates a title for the type if not provided,
-// and uses a default icon if not provided. It then returns a list item with the generated or
-// provided title and icon.
-
 const createList = ({ S, type, icon, title, id }: CreateList) => {
   const newTitle = title ?? getTitleCase(type);
   return S.documentTypeListItem(type)
     .id(id ?? type)
     .title(newTitle)
     .icon(icon ?? File);
-};
-
-type CreateIndexList = {
-  S: StructureBuilder;
-  list: Base;
-  index: Base<SingletonType>;
-  context: StructureResolverContext;
-};
-
-const createIndexListWithOrderableItems = ({
-  S,
-  index,
-  list,
-  context,
-}: CreateIndexList) => {
-  const indexTitle = index.title ?? getTitleCase(index.type);
-  const listTitle = list.title ?? getTitleCase(list.type);
-  return S.listItem()
-    .title(listTitle)
-    .icon(index.icon ?? File)
-    .child(
-      S.list()
-        .title(indexTitle)
-        .items([
-          S.listItem()
-            .title(indexTitle)
-            .icon(index.icon ?? File)
-            .child(
-              S.document()
-                .views([S.view.form()])
-                .schemaType(index.type)
-                .documentId(index.type),
-            ),
-          orderableDocumentListDeskItem({
-            type: list.type,
-            S,
-            context,
-            icon: list.icon ?? File,
-            title: `${listTitle}`,
-          }),
-        ]),
-    );
 };
 
 export const structure = (
@@ -108,21 +61,42 @@ export const structure = (
     .items([
       createSingleTon({ S, type: "homePage", icon: HomeIcon }),
       S.divider(),
-      createList({ S, type: "page", title: "Pages" }),
-      createIndexListWithOrderableItems({
+      createList({
         S,
-        index: { type: "blogIndex", icon: BookMarked },
-        list: { type: "blog", title: "Blogs", icon: FileText },
-        context,
+        type: "news",
+        title: "Lumon News",
+        icon: NewspaperIcon,
       }),
+      createList({
+        S,
+        type: "author",
+        title: "Lumon Employees",
+        icon: User,
+      }),
+      createList({ S, type: "page", title: "Landing Pages" }),
+      createList({
+        S,
+        type: "event",
+        title: "Events & Celebrations",
+        icon: CalendarIcon,
+      }),
+      S.listItem()
+        .title("Kier's Knowledge")
+        .icon(BookOpen)
+        .schemaType("kierKnowledge")
+        .child(
+          S.documentList()
+            .title("Kier's Knowledge")
+            .schemaType("kierKnowledge")
+            .filter('_type == "kierKnowledge"'),
+        ),
+      S.divider(),
       createList({
         S,
         type: "faq",
         title: "FAQs",
         icon: MessageCircleQuestion,
       }),
-      createList({ S, type: "author", title: "Authors", icon: User }),
-      S.divider(),
       S.listItem()
         .title("Site Configuration")
         .icon(Settings2)

@@ -1,4 +1,4 @@
-import { ImageIcon, LinkIcon } from "@sanity/icons";
+import { ImageIcon, LinkIcon, UserIcon, DocumentIcon } from "@sanity/icons";
 import { defineArrayMember, defineField, defineType } from "sanity";
 
 const richTextMembers = [
@@ -29,6 +29,38 @@ const richTextMembers = [
             defineField({
               name: "customLink",
               type: "customUrl",
+            }),
+          ],
+        },
+        {
+          name: "employeeReference",
+          type: "object",
+          title: "Employee Reference",
+          icon: UserIcon,
+          fields: [
+            defineField({
+              name: "employee",
+              type: "reference",
+              to: [{ type: "author" }],
+              title: "Employee",
+              description: "Select an employee to reference",
+              validation: (Rule) => Rule.required(),
+            }),
+          ],
+        },
+        {
+          name: "newsReference",
+          type: "object",
+          title: "News Reference",
+          icon: DocumentIcon,
+          fields: [
+            defineField({
+              name: "news",
+              type: "reference",
+              to: [{ type: "news" }],
+              title: "News Article",
+              description: "Select a news article to reference",
+              validation: (Rule) => Rule.required(),
             }),
           ],
         },

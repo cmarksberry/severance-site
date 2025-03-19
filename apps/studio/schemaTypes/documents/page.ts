@@ -10,7 +10,7 @@ import { pageBuilderField } from "../common";
 
 export const page = defineType({
   name: "page",
-  title: "Page",
+  title: "Landing Pages",
   type: "document",
   icon: DocumentIcon,
   description:

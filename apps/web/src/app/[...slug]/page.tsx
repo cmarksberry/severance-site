@@ -42,6 +42,8 @@ export async function generateStaticParams() {
   return await fetchSlugPagePaths();
 }
 
+type LayoutType = "standard" | "wide" | "narrow";
+
 export default async function SlugPage({
   params,
 }: {
@@ -55,16 +57,29 @@ export default async function SlugPage({
     return notFound();
   }
 
-  const { title, pageBuilder, _id, _type } = pageData ?? {};
+  const { title, pageBuilder, _id, _type, contentMapping } = pageData ?? {};
+
+  // Get the template and layout from content mapping
+  const template = contentMapping?.template || "default";
+  const layout = (contentMapping?.layout || "standard") as LayoutType;
+
+  // Apply layout classes based on content mapping
+  const layoutClasses = {
+    standard: "max-w-4xl mx-auto",
+    wide: "max-w-6xl mx-auto",
+    narrow: "max-w-2xl mx-auto",
+  }[layout];
 
   return !Array.isArray(pageBuilder) || pageBuilder?.length === 0 ? (
-    <div className="flex flex-col items-center justify-center min-h-[50vh] text-center p-4">
+    <div className={`flex flex-col items-center justify-center min-h-[50vh] text-center p-4 ${layoutClasses}`}>
       <h1 className="text-2xl font-semibold mb-4 capitalize">{title}</h1>
       <p className="text-muted-foreground mb-6">
         This page has no content blocks yet.
       </p>
     </div>
   ) : (
-    <PageBuilder pageBuilder={pageBuilder} id={_id} type={_type} />
+    <div className={layoutClasses}>
+      <PageBuilder pageBuilder={pageBuilder} id={_id} type={_type} />
+    </div>
   );
 }

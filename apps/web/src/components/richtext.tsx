@@ -9,80 +9,83 @@ import {
 import { parseChildrenToSlug } from "@/utils";
 
 import { SanityImage } from "./sanity-image";
+import { RichText as RichTextType } from "@/lib/sanity/sanity.types";
 
 const components: Partial<PortableTextReactComponents> = {
   block: {
-    h2: ({ children, value }) => {
-      const slug = parseChildrenToSlug(value.children);
-      return (
-        <h2
-          id={slug}
-          className="scroll-m-20 border-b pb-2 text-3xl font-semibold first:mt-0"
-        >
-          {children}
-        </h2>
-      );
-    },
-    h3: ({ children, value }) => {
-      const slug = parseChildrenToSlug(value.children);
-      return (
-        <h3 id={slug} className="scroll-m-20 text-2xl font-semibold">
-          {children}
-        </h3>
-      );
-    },
-    h4: ({ children, value }) => {
-      const slug = parseChildrenToSlug(value.children);
-      return (
-        <h4 id={slug} className="scroll-m-20 text-xl font-semibold">
-          {children}
-        </h4>
-      );
-    },
-    h5: ({ children, value }) => {
-      const slug = parseChildrenToSlug(value.children);
-      return (
-        <h5 id={slug} className="scroll-m-20 text-lg font-semibold">
-          {children}
-        </h5>
-      );
-    },
-    h6: ({ children, value }) => {
-      const slug = parseChildrenToSlug(value.children);
-      return (
-        <h6 id={slug} className="scroll-m-20 text-base font-semibold">
-          {children}
-        </h6>
-      );
-    },
+    h1: ({ children }) => (
+      <h1 className="text-4xl font-bold mb-4">{children}</h1>
+    ),
+    h2: ({ children }) => (
+      <h2 className="text-3xl font-bold mb-4">{children}</h2>
+    ),
+    h3: ({ children }) => (
+      <h3 className="text-2xl font-bold mb-4">{children}</h3>
+    ),
+    h4: ({ children }) => (
+      <h4 className="text-xl font-bold mb-4">{children}</h4>
+    ),
+    h5: ({ children }) => (
+      <h5 className="text-lg font-bold mb-4">{children}</h5>
+    ),
+    h6: ({ children }) => (
+      <h6 className="text-base font-bold mb-4">{children}</h6>
+    ),
+    normal: ({ children }) => (
+      <p className="mb-4">{children}</p>
+    ),
+    blockquote: ({ children }) => (
+      <blockquote className="border-l-4 border-gray-300 pl-4 italic mb-4">
+        {children}
+      </blockquote>
+    ),
   },
   marks: {
-    code: ({ children }) => (
-      <code className="rounded-md border border-white/10 bg-opacity-5 p-1 text-sm lg:whitespace-nowrap">
-        {children}
-      </code>
-    ),
-    customLink: ({ children, value }) => {
-      if (!value.href || value.href === "#") {
-        console.warn("🚀 link is not set", value);
-        return (
-          <span className="underline decoration-dotted underline-offset-2">
-            Link Broken
-          </span>
-        );
-      }
+    link: ({ value, children }) => {
+      if (!value?.href) return null;
       return (
-        <Link
-          className="underline decoration-dotted underline-offset-2"
-          href={value.href}
-          prefetch={false}
-          aria-label={`Link to ${value?.href}`}
-          target={value.openInNewTab ? "_blank" : "_self"}
-        >
+        <Link href={value.href} className="text-blue-600 hover:underline">
           {children}
         </Link>
       );
     },
+    customLink: ({ value, children }) => {
+      if (!value?.href) return null;
+      const { href, openInNewTab } = value;
+      return (
+        <Link href={href} className="text-blue-600 hover:underline" target={openInNewTab ? "_blank" : undefined} rel={openInNewTab ? "noopener noreferrer" : undefined}>
+          {children}
+        </Link>
+      );
+    },
+    employeeReference: ({ value, children }) => {
+      if (!value?.employee?._ref) {
+        return <span className="text-red-500">Employee Reference Broken</span>;
+      }
+      return (
+        <Link href={`/team/${value.employee._ref}`} className="text-blue-600 hover:underline">
+          {children}
+        </Link>
+      );
+    },
+    newsReference: ({ value, children }) => {
+      if (!value?.news?._ref || !value?.news?.slug) {
+        return <span className="text-red-500">News Reference Broken</span>;
+      }
+      return (
+        <Link href={`/news/${value.news.slug}`} className="text-blue-600 hover:underline">
+          {children}
+        </Link>
+      );
+    },
+  },
+  list: {
+    bullet: ({ children }) => (
+      <ul className="list-disc list-inside mb-4">{children}</ul>
+    ),
+    number: ({ children }) => (
+      <ol className="list-decimal list-inside mb-4">{children}</ol>
+    ),
   },
   types: {
     image: ({ value }) => (
@@ -99,29 +102,12 @@ const components: Partial<PortableTextReactComponents> = {
   hardBreak: () => <br />,
 };
 
-export function RichText<T>({
-  richText,
-  className,
-}: {
-  richText?: T | null;
+interface RichTextProps {
+  richText: RichTextType;
   className?: string;
-}) {
-  if (!richText) return null;
+}
 
-  return (
-    <div
-      className={cn(
-        "prose prose-zinc prose-headings:scroll-m-24 prose-headings:text-opacity-90 prose-p:text-opacity-80 prose-a:decoration-dotted prose-ol:text-opacity-80 prose-ul:text-opacity-80 prose-h2:border-b prose-h2:pb-2 prose-h2:text-3xl prose-h2:font-semibold prose-h2:first:mt-0 max-w-none dark:prose-invert",
-        className,
-      )}
-    >
-      <PortableText
-        value={richText as unknown as PortableTextBlock[]}
-        components={components}
-        onMissingComponent={(_, { nodeType, type }) =>
-          console.log("missing component", nodeType, type)
-        }
-      />
-    </div>
-  );
+export function RichText({ richText, className = "" }: RichTextProps) {
+  if (!richText) return null;
+  return <PortableText value={richText} components={components} />;
 }

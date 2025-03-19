@@ -328,3 +328,40 @@ export const querySitemapData = defineQuery(/* groq */ `{
     "lastModified": _updatedAt
   }
 }`);
+
+export const queryEmployeeSlugPageData = defineQuery(/* groq */ `
+  *[_type == "author" && slug.current == $slug][0]{
+    ...,
+    "slug": slug.current,
+    ${imageFragment},
+    ${richTextFragment},
+    ${pageBuilderFragment}
+  }
+`);
+
+export const queryEmployeePaths = defineQuery(`
+  *[_type == "author" && defined(slug.current)].slug.current
+`);
+
+export const queryNewsSlugPageData = defineQuery(/* groq */ `
+  *[_type == "news" && slug.current == $slug][0] {
+    _id,
+    _type,
+    title,
+    description,
+    "slug": slug.current,
+    department,
+    priority,
+    publishedAt,
+    image,
+    pageBuilder[] {
+      ${pageBuilderFragment}
+    }
+  }
+`);
+
+export const queryNewsPaths = defineQuery(/* groq */ `
+  *[_type == "news" && defined(slug.current)] {
+    "slug": slug.current
+  }
+`);

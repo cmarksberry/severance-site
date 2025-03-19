@@ -1,9 +1,14 @@
 import { pageBuilderBlocks } from "./blocks";
 import { definitions } from "./definitions";
 import { documents, singletons } from "./documents";
+import { type SchemaTypeDefinition } from "sanity";
 
 // Creating a new constant 'schemaTypes' which is a copy of the 'documents' array
-export const schemaTypes = [...documents, ...definitions, ...pageBuilderBlocks];
+export const schemaTypes = [
+  ...documents,
+  ...definitions,
+  ...pageBuilderBlocks,
+];
 
 // Creating a new constant 'schemaNames' which is an array of names extracted from the 'documents' array
 export const schemaNames = [...documents].map((doc) => doc.name);
@@ -19,3 +24,8 @@ export type SingletonType = (typeof singletonType)[number];
 
 // Exporting the 'schemaTypes' constant as the default export of this module
 export default schemaTypes;
+
+// Exporting the schema configuration
+export const schema: { types: SchemaTypeDefinition[] } = {
+  types: schemaTypes,
+};

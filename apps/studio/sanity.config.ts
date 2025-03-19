@@ -24,7 +24,7 @@ const presentationOriginUrl = process.env.SANITY_STUDIO_PRESENTATION_URL;
 
 export default defineConfig({
   name: "default",
-  title: title ?? "Turbo Studio",
+  title: title ?? "Severance",
   projectId: projectId,
   icon: Logo,
   dataset: dataset ?? "production",
@@ -50,7 +50,17 @@ export default defineConfig({
     presentationUrl(),
     unsplashImageAsset(),
   ],
-
+  schema: {
+    types: schemaTypes,
+    templates: createPageTemplate(),
+  },
+  document: {
+    newDocumentOptions: (prev, { creationContext }) => {
+      const { type } = creationContext;
+      if (type === "global") return [];
+      return prev;
+    },
+  },
   form: {
     image: {
       assetSources: (previousAssetSources) => {
@@ -61,16 +71,5 @@ export default defineConfig({
         );
       },
     },
-  },
-  document: {
-    newDocumentOptions: (prev, { creationContext }) => {
-      const { type } = creationContext;
-      if (type === "global") return [];
-      return prev;
-    },
-  },
-  schema: {
-    types: schemaTypes,
-    templates: createPageTemplate(),
   },
 });

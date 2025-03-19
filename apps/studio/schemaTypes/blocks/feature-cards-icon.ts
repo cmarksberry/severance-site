@@ -1,31 +1,37 @@
 import { LayoutGrid } from "lucide-react";
 import { defineField } from "sanity";
 import { defineType } from "sanity";
-import { preview } from "sanity-plugin-icon-picker";
-
-import { iconField } from "../common";
-import { customRichText } from "../definitions/rich-text";
 
 const featureCardIcon = defineField({
   name: "featureCardIcon",
   type: "object",
   fields: [
-    iconField,
     defineField({
-      name: "title",
-      type: "string",
+      name: "employee",
+      type: "reference",
+      to: [{ type: "author" }],
+      title: "Lumon Employee",
+      description: "Select a Lumon employee to feature",
+      validation: (Rule) => Rule.required(),
     }),
-    customRichText(["block"]),
+    defineField({
+      name: "highlight",
+      type: "string",
+      title: "Key Achievement",
+      description: "A notable achievement or contribution by this employee",
+    }),
   ],
   preview: {
     select: {
-      title: "title",
-      icon: "icon",
+      title: "employee.name",
+      subtitle: "highlight",
+      media: "employee.image",
     },
-    prepare: ({ title, icon }) => {
+    prepare: ({ title, subtitle, media }) => {
       return {
-        title: `${title ?? "Untitled"}`,
-        media: icon ? preview(icon) : null,
+        title: title ?? "Unnamed Employee",
+        subtitle: subtitle ?? "No highlight specified",
+        media,
       };
     },
   },
@@ -39,25 +45,31 @@ export const featureCardsIcon = defineType({
     defineField({
       name: "eyebrow",
       type: "string",
+      title: "Section Eyebrow",
+      description: "A short text that appears above the section title",
     }),
     defineField({
       name: "title",
       type: "string",
+      title: "Section Title",
+      description: "The main title for this section of employee features",
     }),
-    customRichText(["block"]),
     defineField({
       name: "cards",
       type: "array",
       of: [featureCardIcon],
+      title: "Featured Employees",
+      description: "Select Lumon employees to feature in this section",
     }),
   ],
   preview: {
     select: {
       title: "title",
+      cards: "cards",
     },
-    prepare: ({ title }) => ({
-      title,
-      subtitle: "Feature Cards with Icon",
+    prepare: ({ title, cards }) => ({
+      title: title ?? "Featured Employees",
+      subtitle: `${cards?.length ?? 0} employee${cards?.length === 1 ? "" : "s"} featured`,
     }),
   },
 });
