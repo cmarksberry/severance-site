@@ -1,54 +1,20 @@
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+import { SanityImage } from "@/components/sanity-image";
 import { sanityFetch } from "@/lib/sanity/live";
 import { queryNewsSlugPageData } from "@/lib/sanity/query";
 
 interface Props {
-  params: Promise<{
+  params: {
     slug: string;
-  }>;
-}
-
-interface NewsArticle {
-  _id: string;
-  _type: string;
-  title: string;
-  description: string;
-  slug: {
-    current: string;
   };
-  department: string;
-  priority: string;
-  publishedAt: string;
-  image: {
-    asset: {
-      _ref: string;
-      _type: string;
-    };
-    hotspot?: {
-      x: number;
-      y: number;
-      height: number;
-      width: number;
-    };
-    crop?: {
-      top: number;
-      bottom: number;
-      left: number;
-      right: number;
-    };
-    _type: "image";
-  };
-  pageBuilder?: any[];
-  content: any[];
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const resolvedParams = await params;
   const { data: article } = await sanityFetch({
     query: queryNewsSlugPageData,
-    params: { slug: resolvedParams.slug },
+    params: { slug: params.slug },
   });
 
   if (!article) {
@@ -70,10 +36,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function NewsArticlePage({ params }: Props) {
-  const resolvedParams = await params;
   const { data: article } = await sanityFetch({
     query: queryNewsSlugPageData,
-    params: { slug: resolvedParams.slug },
+    params: { slug: params.slug },
   });
 
   if (!article) {
@@ -101,15 +66,16 @@ export default async function NewsArticlePage({ params }: Props) {
         </time>
       )}
       {article.image && (
-        <img
-          src={article.image.asset._ref}
-          alt={article.title}
-          className="mb-8 w-full rounded-lg"
-        />
+        <div className="relative aspect-video mb-8">
+          <SanityImage
+            asset={article.image}
+            alt={article.title}
+            fill
+            className="object-cover rounded-lg"
+          />
+        </div>
       )}
-      <div className="prose prose-lg max-w-none">
-        {article.content}
-      </div>
+      <div className="prose prose-lg max-w-none">{article.content}</div>
     </article>
   );
 } 
