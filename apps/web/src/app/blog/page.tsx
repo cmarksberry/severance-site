@@ -4,11 +4,10 @@ import { BlogCard, BlogHeader, FeaturedBlogCard } from "@/components/blog-card";
 import { PageBuilder } from "@/components/pagebuilder";
 import { sanityFetch } from "@/lib/sanity/live";
 import { queryBlogIndexPageData } from "@/lib/sanity/query";
-import type { QueryBlogIndexPageDataResult } from "@/lib/sanity/sanity.types";
-import type { SanityImageProps } from "@/types";
+import { SanityImageProps } from "@/types";
 import { getMetaData } from "@/lib/seo";
 
-type Blog = {
+interface Blog {
   _id: string;
   _type: string;
   title: string | null;
@@ -21,76 +20,63 @@ type Blog = {
     name: string | null;
     image: SanityImageProps | null;
   } | null;
-};
+}
+
+interface BlogIndexData {
+  _id: string;
+  _type: string;
+  title: string | null;
+  description: string | null;
+  slug: string;
+  pageBuilder: any;
+  blogs: Blog[];
+}
 
 /**
  * Fetches blog posts data from Sanity CMS
  */
-async function fetchBlogPosts(): Promise<{ data: QueryBlogIndexPageDataResult }> {
-  return await sanityFetch({ query: queryBlogIndexPageData });
+async function fetchBlogPosts() {
+  const data = await sanityFetch({
+    query: queryBlogIndexPageData,
+  }) as { data: BlogIndexData };
+
+  if (!data?.data?.blogs?.length) {
+    return notFound();
+  }
+
+  return data;
 }
 
 export async function generateMetadata() {
-  try {
-    const { data } = await fetchBlogPosts();
-    return getMetaData(data ?? {});
-  } catch {
-    return getMetaData({});
-  }
+  const { data } = await fetchBlogPosts();
+
+  return {
+    title: data.title ?? "Blog",
+    description: data.description ?? "Read our latest blog posts",
+  };
 }
 
 export default async function BlogIndexPage() {
   const { data } = await fetchBlogPosts();
-  if (!data) notFound();
 
-  const { blogs = [], title, description, pageBuilder = [], _id, _type } = data;
-
-  // Handle empty blogs case
-  if (!blogs.length) {
-    return (
-      <main className="container my-16 mx-auto px-4 md:px-6">
-        <BlogHeader title={title} description={description} />
-        <div className="text-center py-12">
-          <p className="text-muted-foreground">
-            No blog posts available at the moment.
-          </p>
-        </div>
-        {pageBuilder && pageBuilder.length > 0 && (
-          <PageBuilder pageBuilder={pageBuilder} id={_id} type={_type} />
-        )}
-      </main>
-    );
-  }
-
-  // Extract featured blog and remaining blogs
-  const [featuredBlog, ...remainingBlogs] = blogs;
+  const [featuredBlog, ...remainingBlogs] = data.blogs;
 
   return (
-    <main className="bg-background">
-      <div className="container my-16 mx-auto px-4 md:px-6">
-        <BlogHeader title={title} description={description} />
-
-        {/* Featured Blog */}
-        {featuredBlog && (
-          <div className="mx-auto mt-8 sm:mt-12 md:mt-16 mb-12 lg:mb-20">
-            <FeaturedBlogCard blog={featuredBlog as Blog} />
-          </div>
-        )}
-
-        {/* Blog Grid */}
-        {remainingBlogs.length > 0 && (
-          <div className="grid grid-cols-1 gap-8 md:gap-12 lg:grid-cols-2">
-            {remainingBlogs.map((blog) => (
-              <BlogCard key={blog._id} blog={blog as Blog} />
-            ))}
-          </div>
-        )}
-
-        {/* Page Builder */}
-        {pageBuilder && pageBuilder.length > 0 && (
-          <PageBuilder pageBuilder={pageBuilder} id={_id} type={_type} />
-        )}
-      </div>
-    </main>
+    <div className="container mx-auto px-4 py-8">
+      <BlogHeader title={data.title} description={data.description} />
+      {data.pageBuilder && <PageBuilder pageBuilder={data.pageBuilder} id={data._id} type={data._type} />}
+      {featuredBlog && (
+        <div className="mb-12">
+          <FeaturedBlogCard blog={featuredBlog} />
+        </div>
+      )}
+      {remainingBlogs.length > 0 && (
+        <div className="grid grid-cols-1 gap-8 md:gap-12 lg:grid-cols-2">
+          {remainingBlogs.map((blog: Blog) => (
+            <BlogCard key={blog._id} blog={blog} />
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
