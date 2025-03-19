@@ -54,7 +54,8 @@ export const imageLinkCards = defineType({
               type: "string",
               title: "Title",
               description: "The title of this card",
-              validation: (Rule) => Rule.required().error("A title is required"),
+              validation: (Rule) =>
+                Rule.required().error("A title is required"),
             }),
             defineField({
               name: "description",
@@ -65,10 +66,27 @@ export const imageLinkCards = defineType({
             }),
             defineField({
               name: "link",
-              type: "url",
+              type: "object",
               title: "Link",
-              description: "The URL this card should link to",
-              validation: (Rule) => Rule.required().error("A link is required"),
+              description: "The link for this card",
+              fields: [
+                defineField({
+                  name: "text",
+                  type: "string",
+                  title: "Link Text",
+                  description: "The text to display for the link",
+                  validation: (Rule) =>
+                    Rule.required().error("Link text is required"),
+                }),
+                defineField({
+                  name: "href",
+                  type: "string",
+                  title: "Link URL",
+                  description: "The URL to link to",
+                  validation: (Rule) =>
+                    Rule.required().error("Link URL is required"),
+                }),
+              ],
             }),
           ],
         },
@@ -85,7 +103,7 @@ export const imageLinkCards = defineType({
     prepare: ({ title, cards }) => {
       return {
         title: title || "Image Link Cards",
-        subtitle: `Cards: ${cards?.length || 0}`,
+        subtitle: `${cards?.length || 0} cards`,
       };
     },
   },

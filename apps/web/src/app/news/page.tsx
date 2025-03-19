@@ -4,16 +4,17 @@ import { SanityImage } from "@/components/sanity-image";
 import { sanityFetch } from "@/lib/sanity/live";
 import { queryNewsPaths } from "@/lib/sanity/query";
 import { getMetaData } from "@/lib/seo";
+import type { SanityImageProps } from "@/types";
 
 interface NewsArticle {
   slug: string;
   title: string;
   description?: string;
-  image?: any;
   publishedAt?: string;
+  image?: SanityImageProps;
 }
 
-async function fetchNewsArticles() {
+async function fetchNewsArticles(): Promise<{ data: NewsArticle[] }> {
   return await sanityFetch({
     query: queryNewsPaths,
   });
@@ -47,38 +48,30 @@ export default async function NewsPage() {
                 {article.image && (
                   <SanityImage
                     asset={article.image}
-                    className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
-                    width={800}
-                    height={450}
+                    loading="lazy"
+                    className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
                   />
                 )}
               </div>
-              <div className="p-6">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                  {article.title}
-                </h2>
+              <div className="p-4">
+                <h2 className="text-xl font-semibold mb-2">{article.title}</h2>
                 {article.description && (
-                  <p className="mt-2 text-gray-600 dark:text-gray-300 line-clamp-2">
+                  <p className="text-muted-foreground line-clamp-2">
                     {article.description}
                   </p>
                 )}
                 {article.publishedAt && (
-                  <time
-                    dateTime={article.publishedAt}
-                    className="mt-4 block text-sm text-gray-500 dark:text-gray-400"
-                  >
+                  <p className="text-sm text-muted-foreground mt-2">
                     {new Date(article.publishedAt).toLocaleDateString()}
-                  </time>
+                  </p>
                 )}
               </div>
             </Link>
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center min-h-[50vh] text-center p-4">
-          <p className="text-muted-foreground mb-6">
-            No news articles found.
-          </p>
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">No news articles found.</p>
         </div>
       )}
     </div>

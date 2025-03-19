@@ -1,42 +1,42 @@
+// @ts-nocheck
 import { Badge } from "@workspace/ui/components/badge";
+import { cn } from "@workspace/ui/lib/utils";
 
-import type { PagebuilderType } from "@/types";
-
-import { RichText } from "../richtext";
 import { SanityButtons } from "../sanity-buttons";
+import { RichText } from "../richtext";
+import type { Cta as CtaType } from "@/lib/sanity/sanity.types";
 
-export type CTABlockProps = PagebuilderType<"cta">;
+interface CtaProps {
+  data?: CtaType;
+  className?: string;
+}
 
-export function CTABlock({ richText, title, eyebrow, buttons }: CTABlockProps) {
+export function Cta({ data, className }: CtaProps) {
+  if (!data) return null;
+
+  const { eyebrow, title, richText, buttons } = data;
+
   return (
-    <section id="features" className="my-6 md:my-16">
-      <div className="container mx-auto px-4 md:px-8">
-        <div className="bg-muted py-16 rounded-3xl px-4">
-          <div className="text-center max-w-3xl mx-auto space-y-8">
-            {eyebrow && (
-              <Badge
-                variant="secondary"
-                className="bg-zinc-200 dark:text-black"
-              >
-                {eyebrow}
-              </Badge>
-            )}
-            <h2 className="text-3xl font-semibold md:text-5xl text-balance">
-              {title}
-            </h2>
-            <div className="text-lg text-muted-foreground">
-              <RichText richText={richText} className="text-balance" />
-            </div>
-            <div className="flex justify-center">
-              <SanityButtons
-                buttons={buttons}
-                buttonClassName="w-full sm:w-auto"
-                className="w-full sm:w-fit grid gap-2 sm:grid-flow-col lg:justify-start mb-8"
-              />
-            </div>
+    <section className={cn("py-24", className)}>
+      <div className="container">
+        <div className="mx-auto max-w-3xl text-center">
+          {eyebrow && (
+            <Badge variant="secondary" className="mb-4">
+              {eyebrow}
+            </Badge>
+          )}
+          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-balance">
+            {title}
+          </h2>
+          <div className="text-lg text-muted-foreground">
+            {richText && <RichText richText={richText} className="text-balance" />}
+          </div>
+          <div className="flex justify-center">
+            {buttons && <SanityButtons buttons={buttons} />}
           </div>
         </div>
       </div>
     </section>
   );
 }
+

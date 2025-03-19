@@ -16,7 +16,8 @@ export const quote = defineType({
       name: "attribution",
       title: "Attribution",
       type: "string",
-      description: "Who said this quote (e.g., 'Kier Eagan', 'Board of Directors')",
+      description:
+        "Who said this quote (e.g., 'Kier Eagan', 'Board of Directors')",
       validation: (Rule) => Rule.required(),
     },
     {
@@ -39,4 +40,4 @@ export const quote = defineType({
       };
     },
   },
-}); 
+});

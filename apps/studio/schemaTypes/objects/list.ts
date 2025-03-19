@@ -37,4 +37,4 @@ export const list = defineType({
       };
     },
   },
-}); 
+});

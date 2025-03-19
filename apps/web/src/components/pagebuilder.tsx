@@ -7,7 +7,7 @@ import { dataset, projectId, studioUrl } from "@/lib/sanity/api";
 import type { QueryHomePageDataResult } from "@/lib/sanity/sanity.types";
 import type { PagebuilderType } from "@/types";
 
-import { CTABlock } from "./sections/cta";
+import { Cta } from "./sections/cta";
 import { FaqAccordion } from "./sections/faq-accordion";
 import { FeatureCardsWithIcon } from "./sections/feature-cards-with-icon";
 import { HeroBlock } from "./sections/hero";
@@ -31,7 +31,7 @@ type PageData = {
 };
 
 const BLOCK_COMPONENTS = {
-  cta: CTABlock,
+  cta: Cta,
   faqAccordion: FaqAccordion,
   hero: HeroBlock,
   featureCardsIcon: FeatureCardsWithIcon,

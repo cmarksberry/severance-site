@@ -3,4 +3,4 @@
   "outputDirectory": "dist",
   "installCommand": "npm install",
   "framework": "vite"
-} 
+}

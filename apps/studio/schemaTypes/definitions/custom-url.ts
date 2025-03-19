@@ -2,10 +2,7 @@ import { defineField, defineType } from "sanity";
 
 import { createRadioListLayout, isValidUrl } from "../../utils/helper";
 
-const allLinkableTypes = [
-  { type: "news" },
-  { type: "page" },
-];
+const allLinkableTypes = [{ type: "news" }, { type: "page" }];
 
 export const customUrl = defineType({
   name: "customUrl",

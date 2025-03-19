@@ -20,6 +20,7 @@ import { RichText } from "../richtext";
 // );
 
 type SubscribeNewsletterProps = PagebuilderType<"subscribeNewsletter">;
+
 export default function SubscribeNewsletterButton() {
   const { pending } = useFormStatus();
   return (
@@ -56,6 +57,8 @@ export function SubscribeNewsletter({
   subTitle,
   helperText,
 }: SubscribeNewsletterProps) {
+  if (!title) return null;
+
   return (
     <section id="subscribe" className="px-4 py-8 sm:py-12 md:py-16">
       <div className="relative container mx-auto px-4 md:px-8 py-8 sm:py-16 md:py-24 lg:py-32 bg-gray-50 dark:bg-zinc-900 rounded-3xl overflow-hidden">

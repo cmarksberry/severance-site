@@ -29,21 +29,24 @@ export const author = defineType({
       name: "isSevered",
       type: "boolean",
       title: "Severed Employee",
-      description: "Whether this employee has undergone the Severance procedure",
+      description:
+        "Whether this employee has undergone the Severance procedure",
       initialValue: false,
     }),
     defineField({
       name: "innieName",
       type: "string",
       title: "Innie Name",
-      description: "The name used by the employee's innie (if different from their outie name)",
+      description:
+        "The name used by the employee's innie (if different from their outie name)",
       hidden: ({ parent }) => !parent?.isSevered,
     }),
     defineField({
       name: "severanceDate",
       type: "date",
       title: "Severance Date",
-      description: "The date when the employee underwent the Severance procedure",
+      description:
+        "The date when the employee underwent the Severance procedure",
       hidden: ({ parent }) => !parent?.isSevered,
     }),
     defineField({
@@ -83,7 +86,8 @@ export const author = defineType({
       name: "bio",
       type: "text",
       title: "Bio",
-      description: "A brief description of the employee's role and responsibilities",
+      description:
+        "A brief description of the employee's role and responsibilities",
       rows: 3,
     }),
     defineField({
@@ -167,7 +171,9 @@ export const author = defineType({
       isSevered,
     }) => {
       // Create a Severance-themed subtitle
-      const deptInfo = department ? `🏢 ${department.toUpperCase()}` : "🏢 Unassigned";
+      const deptInfo = department
+        ? `🏢 ${department.toUpperCase()}`
+        : "🏢 Unassigned";
       const statusInfo = status ? `🔵 ${status}` : "🔵 Active";
       const innieInfo = innieName ? `👤 Innie: ${innieName}` : "";
       const idInfo = employeeId ? `🆔 ${employeeId}` : "";

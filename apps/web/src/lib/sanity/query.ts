@@ -370,6 +370,10 @@ export const queryNewsSlugPageData = defineQuery(/* groq */ `
 
 export const queryNewsPaths = defineQuery(/* groq */ `
   *[_type == "news" && defined(slug.current)] {
-    "slug": slug.current
+    "slug": slug.current,
+    title,
+    description,
+    publishedAt,
+    ${imageFragment}
   }
 `);

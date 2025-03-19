@@ -5,4 +5,11 @@ import { pageBuilder } from "./pagebuilder";
 import { quote } from "../objects/quote";
 import { richText } from "./rich-text";
 
-export const definitions = [customUrl, richText, button, pageBuilder, list, quote];
+export const definitions = [
+  customUrl,
+  richText,
+  button,
+  pageBuilder,
+  list,
+  quote,
+];

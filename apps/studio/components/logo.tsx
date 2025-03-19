@@ -8,7 +8,13 @@ export function Logo() {
       xmlns="http://www.w3.org/2000/svg"
     >
       <title>Lumon Industries</title>
-      <circle cx="16" cy="16" r="15" stroke="var(--card-fg-color)" strokeWidth="2" />
+      <circle
+        cx="16"
+        cy="16"
+        r="15"
+        stroke="var(--card-fg-color)"
+        strokeWidth="2"
+      />
       <path
         d="M16 4C9.37258 4 4 9.37258 4 16C4 22.6274 9.37258 28 16 28C22.6274 28 28 22.6274 28 16C28 9.37258 22.6274 4 16 4Z"
         stroke="var(--card-fg-color)"

@@ -12,4 +12,13 @@ import { settings } from "./settings";
 
 export const singletons = [homePage, settings, footer, navbar];
 
-export const documents = [news, page, faq, author, event, eventMemory, kierKnowledge, ...singletons];
+export const documents = [
+  news,
+  page,
+  faq,
+  author,
+  event,
+  eventMemory,
+  kierKnowledge,
+  ...singletons,
+];

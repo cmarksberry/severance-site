@@ -11,7 +11,8 @@ export const event = defineType({
       name: "title",
       type: "string",
       title: "Event Title",
-      description: "The name of the event (e.g., 'Melon Bar Celebration', 'Waffle Party')",
+      description:
+        "The name of the event (e.g., 'Melon Bar Celebration', 'Waffle Party')",
       validation: (Rule) => Rule.required().error("Event title is required"),
     }),
     defineField({
@@ -91,7 +92,8 @@ export const event = defineType({
       name: "foodItems",
       type: "array",
       title: "Food Items",
-      description: "List of food items that will be served (for food celebrations)",
+      description:
+        "List of food items that will be served (for food celebrations)",
       hidden: ({ parent }) => parent?.type !== "food",
       of: [
         {
@@ -201,7 +203,8 @@ export const event = defineType({
       name: "protocolNotes",
       type: "text",
       title: "Protocol Notes",
-      description: "Any specific protocols or procedures to follow during the event",
+      description:
+        "Any specific protocols or procedures to follow during the event",
       rows: 2,
     }),
     defineField({
@@ -240,7 +243,9 @@ export const event = defineType({
       // Create a Severance-themed subtitle
       const deptInfo = department ? `🏢 ${department.toUpperCase()}` : "🏢 All";
       const typeInfo = type ? `🎉 ${type}` : "🎉 Event";
-      const dateInfo = date ? `📅 ${new Date(date).toLocaleDateString()}` : "📅 TBD";
+      const dateInfo = date
+        ? `📅 ${new Date(date).toLocaleDateString()}`
+        : "📅 TBD";
       const statusInfo = status ? `🔵 ${status}` : "🔵 Scheduled";
 
       return {
@@ -250,4 +255,4 @@ export const event = defineType({
       };
     },
   },
-}); 
+});

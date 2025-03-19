@@ -59,8 +59,7 @@ export default async function SlugPage({
 
   const { title, pageBuilder, _id, _type, contentMapping } = pageData ?? {};
 
-  // Get the template and layout from content mapping
-  const template = contentMapping?.template || "default";
+  // Get the layout from content mapping
   const layout = (contentMapping?.layout || "standard") as LayoutType;
 
   // Apply layout classes based on content mapping
@@ -71,7 +70,9 @@ export default async function SlugPage({
   }[layout];
 
   return !Array.isArray(pageBuilder) || pageBuilder?.length === 0 ? (
-    <div className={`flex flex-col items-center justify-center min-h-[50vh] text-center p-4 ${layoutClasses}`}>
+    <div
+      className={`flex flex-col items-center justify-center min-h-[50vh] text-center p-4 ${layoutClasses}`}
+    >
       <h1 className="text-2xl font-semibold mb-4 capitalize">{title}</h1>
       <p className="text-muted-foreground mb-6">
         This page has no content blocks yet.

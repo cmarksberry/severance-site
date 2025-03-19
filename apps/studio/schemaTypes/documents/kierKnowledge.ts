@@ -4,7 +4,12 @@ import { list } from "../objects/list";
 import { quote } from "../objects/quote";
 
 type ImportanceLevel = "critical" | "essential" | "important" | "supplementary";
-type Category = "core-values" | "teachings" | "principles" | "historical" | "protocols";
+type Category =
+  | "core-values"
+  | "teachings"
+  | "principles"
+  | "historical"
+  | "protocols";
 
 const IMPORTANCE_EMOJI: Record<ImportanceLevel, string> = {
   critical: "🔴",
@@ -181,8 +186,12 @@ export const kierKnowledge = defineType({
       media: "content.0",
     },
     prepare: ({ title, category, importance, media }) => {
-      const importanceEmoji = importance ? IMPORTANCE_EMOJI[importance as ImportanceLevel] : "⚪";
-      const categoryEmoji = category ? CATEGORY_EMOJI[category as Category] : "📚";
+      const importanceEmoji = importance
+        ? IMPORTANCE_EMOJI[importance as ImportanceLevel]
+        : "⚪";
+      const categoryEmoji = category
+        ? CATEGORY_EMOJI[category as Category]
+        : "📚";
 
       return {
         title: `${importanceEmoji} ${title || "Untitled Knowledge"}`,
@@ -191,4 +200,4 @@ export const kierKnowledge = defineType({
       };
     },
   },
-}); 
+});
