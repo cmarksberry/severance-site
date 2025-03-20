@@ -5,7 +5,7 @@
   "main": "package.json",
   "license": "UNLICENSED",
   "scripts": {
-    "dev": "sanity dev",
+    "dev": "sanity dev --port 3333",
     "format": "prettier --write .",
     "start": "sanity start",
     "lint": "eslint .",
