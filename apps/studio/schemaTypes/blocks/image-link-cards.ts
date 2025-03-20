@@ -39,6 +39,7 @@ export const imageLinkCards = defineType({
       of: [
         {
           type: "object",
+          name: "imageLinkCard",
           fields: [
             defineField({
               name: "image",
@@ -65,28 +66,10 @@ export const imageLinkCards = defineType({
               rows: 2,
             }),
             defineField({
-              name: "link",
-              type: "object",
+              name: "url",
+              type: "customUrl",
               title: "Link",
               description: "The link for this card",
-              fields: [
-                defineField({
-                  name: "text",
-                  type: "string",
-                  title: "Link Text",
-                  description: "The text to display for the link",
-                  validation: (Rule) =>
-                    Rule.required().error("Link text is required"),
-                }),
-                defineField({
-                  name: "href",
-                  type: "string",
-                  title: "Link URL",
-                  description: "The URL to link to",
-                  validation: (Rule) =>
-                    Rule.required().error("Link URL is required"),
-                }),
-              ],
             }),
           ],
         },
